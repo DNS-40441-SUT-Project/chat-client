@@ -1,0 +1,34 @@
+from django.core.management.base import BaseCommand
+from ...commands_controller import handle_input
+
+
+class Command(BaseCommand):
+    help = "start the client for chat app"
+
+    def log(self, message):
+        self.stdout.write(
+            self.style.SUCCESS(
+                message,
+            ),
+        )
+
+    def log_error(self, message):
+        self.stdout.write(
+            self.style.ERROR(
+                message,
+            ),
+        )
+
+    def print(self, user_input):
+        try:
+            message = handle_input(user_input)
+            self.log(message)
+        except Exception as e:
+            self.log_error(str(e))
+
+    def handle(self, *args, **options):
+        self.print('help')
+
+        while True:
+            input_message = input('-> ')
+            self.print(input_message)
