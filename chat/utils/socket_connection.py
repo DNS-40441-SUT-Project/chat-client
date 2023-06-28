@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class ClientNormalSocket(ClientSocketConnection):
-    _server_port = settings.POLL_PORT
+    _server_port = settings.SERVER_PORT
 
 
 class ClientPollSocket(ClientSocketConnection):
