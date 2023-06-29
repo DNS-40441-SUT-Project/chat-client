@@ -52,8 +52,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = '_base.urls'
 
-# auth
-AUTH_USER_MODEL = 'chat.User'
+# # auth
+# AUTH_USER_MODEL = 'chat.User'
 
 TEMPLATES = [
     {
@@ -125,6 +125,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SERVER_PORT = 7005
 POLL_PORT = 7010
 
+
+with open('_base/private.key', mode='rb') as privatefile:
+    keydata = privatefile.read()
+PRIVATE_KEY = rsa.PrivateKey.load_pkcs1(keydata)
+
+with open('_base/public.key', 'rb') as publicfile:
+    pkeydata = publicfile.read()
+PUBLIC_KEY = rsa.PublicKey.load_pkcs1(pkeydata)
 
 with open('_base/server_public.key', 'rb') as publicfile:
     pkeydata = publicfile.read()
