@@ -1,8 +1,15 @@
 from typing import Optional
 
 from django.conf import settings
-
+import threading
+from chat.request_handlers import handle_poll_input
 from chat.utils import poll_connection
+
+
+def handle_poll_connections():
+    while True:
+        message = poll_connection.recieve_decrypted(private_key=settings.PRIVATE_KEY)
+        handle_poll_input(message)
 
 
 class LoggedInUser:
@@ -32,6 +39,8 @@ class LoggedInUser:
         response = poll_connection.receive()
         if response.body['status'] == '200':
             cls._logged_in_user = cls(username, password)
+            thread = threading.Thread(target=handle_poll_connections)
+            thread.start()
         else:
             raise cls.Exceptions.ServerError
         return response
