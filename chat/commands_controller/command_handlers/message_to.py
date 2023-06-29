@@ -14,7 +14,7 @@ def create_session_with_user(luser: LoggedInUser, other_user: str):
         path='start_session', data=dict(
             to=other_user,
             T=datetime.now().timestamp(),
-            KA='chertA',
+            KA='KA',
         ),
         headers=dict(
             authentication=dict(
