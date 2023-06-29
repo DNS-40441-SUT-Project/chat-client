@@ -3,6 +3,7 @@ from datetime import datetime
 from connection_utils.socket_message import SocketMessage
 from django.conf import settings
 
+from chat.data import LoggedInUser
 from chat.exceptions import SecurityException
 from chat.utils import poll_connection
 from chat.utils.defi_helman import DH_decrypt, DH_encrypt
@@ -17,17 +18,18 @@ def handle_start_session_request(message: SocketMessage):
     # 5
     M = 'M'
     KB = 'KB'
-    poll_connection.send_encrypted(
+    poll_connection.send_sym_encrypted(
         path='resume_session', data=dict(
             to=data['from'],
             KB=KB,
             T=datetime.now().timestamp(),
             M=M,
-        ), public_key=settings.SERVER_PUB,
+        ), symmetric_key=LoggedInUser.get_logged_in_user().encode_symmetric_key,
     )
 
     # 12
-    message: SocketMessage = poll_connection.recieve_decrypted(settings.PRIVATE_KEY)
+    message: SocketMessage = poll_connection.recieve_sym_decrypted(
+        LoggedInUser.get_logged_in_user().encode_symmetric_key)
     data_12 = message.body
     if data_12['T'] - datetime.now().timestamp() > 10:
         raise SecurityException()
@@ -44,10 +46,10 @@ def handle_start_session_request(message: SocketMessage):
     encrypted_hash_m_prim = DH_encrypt(hash_m_prim, KA, KB)
 
     print(vars(message))
-    poll_connection.send_encrypted(
+    poll_connection.send_sym_encrypted(
         path='resume_session', data=dict(
             to=data['from'],
             T=datetime.now().timestamp(),
             encrypted_hash_m_prim=encrypted_hash_m_prim,
-        ), public_key=settings.SERVER_PUB,
+        ), symmetric_key=LoggedInUser.get_logged_in_user().encode_symmetric_key,
     )

@@ -4,13 +4,13 @@ from typing import Optional
 from connection_utils.socket_message import SocketMessage
 from django.conf import settings
 
-from chat.request_handlers import handle_poll_input
 from chat.utils import poll_connection
 
 
 def handle_poll_connections():
     while True:
         # 4
+        from chat.request_handlers import handle_poll_input
         message = poll_connection.recieve_decrypted(private_key=settings.PRIVATE_KEY)
         handle_poll_input(message)
 
@@ -64,6 +64,10 @@ class LoggedInUser:
         if cls._logged_in_user is None:
             raise cls.Exceptions.NotLoggedIn
         cls._logged_in_user = None
+
+    @property
+    def encode_symmetric_key(self):
+        return self.symmetric_key.encode('utf-8')
 
     def __init__(self, username: str, password: str, symmetric_key: str):
         self.username, self.password, self.symmetric_key = username, password, symmetric_key
