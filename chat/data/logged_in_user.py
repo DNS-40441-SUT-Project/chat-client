@@ -1,7 +1,9 @@
+import threading
 from typing import Optional
 
+from connection_utils.socket_message import SocketMessage
 from django.conf import settings
-import threading
+
 from chat.request_handlers import handle_poll_input
 from chat.utils import poll_connection
 
@@ -39,7 +41,12 @@ class LoggedInUser:
         ), public_key=settings.SERVER_PUB)
         response = poll_connection.receive()
         if response.body['status'] == '200':
-            cls._logged_in_user = cls(username, password)
+            poll_connection.send_encrypted(path='symmetric_key', headers=dict(authentication=dict(
+                username=username,
+                password=password
+            )), public_key=settings.SERVER_PUB)
+            message: SocketMessage = poll_connection.recieve_decrypted(settings.PRIVATE_KEY)
+            cls._logged_in_user = cls(username, password, message.body['symmetric_key'])
             thread = threading.Thread(target=handle_poll_connections)
             thread.start()
         else:
@@ -58,5 +65,5 @@ class LoggedInUser:
             raise cls.Exceptions.NotLoggedIn
         cls._logged_in_user = None
 
-    def __init__(self, username: str, password: str):
-        self.username, self.password = username, password
+    def __init__(self, username: str, password: str, symmetric_key: str):
+        self.username, self.password, self.symmetric_key = username, password, symmetric_key
