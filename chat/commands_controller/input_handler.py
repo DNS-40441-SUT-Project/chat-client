@@ -13,3 +13,6 @@ def handle_input(message):
         return exit_handler()
     if re.search('^connection_health_check$', message):
         return health_check()
+    if re.search('^connection_health_check_enc$', message):
+        return health_check_enc()
+

@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import rsa
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
@@ -122,3 +124,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SERVER_PORT = 7005
 POLL_PORT = 7010
+
+
+with open('_base/server_public.key', 'rb') as publicfile:
+    pkeydata = publicfile.read()
+
+SERVER_PUB = rsa.PublicKey.load_pkcs1(pkeydata)
