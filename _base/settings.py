@@ -134,6 +134,12 @@ with open('_base/client_keys/public.key', 'rb') as publicfile:
     pkeydata = publicfile.read()
 PUBLIC_KEY = rsa.PublicKey.load_pkcs1(pkeydata)
 
+# pub_string = rsa.PublicKey.save_pkcs1(PUBLIC_KEY, format='PEM').decode()
+# print(pub_string)
+# pub_object = rsa.PublicKey.load_pkcs1(pub_string.encode())
+# print(pub_object)
+# print(pub_object == PUBLIC_KEY)
+
 with open('_base/server_public.key', 'rb') as publicfile:
     pkeydata = publicfile.read()
 

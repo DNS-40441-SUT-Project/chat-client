@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 import rsa
@@ -11,7 +10,7 @@ from chat.utils import connection
 
 
 def create_session_with_user(luser: LoggedInUser, other_user: str):
-    connection.send(
+    connection.send_encrypted(
         path='start_session', data=dict(
             to=other_user,
             T=datetime.now().timestamp(),
@@ -22,10 +21,10 @@ def create_session_with_user(luser: LoggedInUser, other_user: str):
                 username=luser.username,
                 password=luser.password
             )
-        )
+        ), public_key=settings.SERVER_PUB
     )
-    message = connection.receive()
-    data = rsa.decrypt(message.body, settings.PRIVATE_KEY)
+    message = connection.recieve_decrypted(settings.PRIVATE_KEY)
+    data = message.body
     if data['from'] != other_user:
         raise SecurityException()
     if data['T'] - datetime.now().timestamp() > 10:
