@@ -8,6 +8,7 @@ from chat.utils import poll_connection
 
 def handle_poll_connections():
     while True:
+        # 4
         message = poll_connection.recieve_decrypted(private_key=settings.PRIVATE_KEY)
         handle_poll_input(message)
 

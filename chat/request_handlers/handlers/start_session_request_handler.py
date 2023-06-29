@@ -1,16 +1,26 @@
-from connection_utils.socket_message import SocketMessage
+from datetime import datetime
 
-from chat.utils import connection
+from connection_utils.socket_message import SocketMessage
+from django.conf import settings
+
+from chat.exceptions import SecurityException
+from chat.utils import poll_connection
 
 
 def handle_start_session_request(message: SocketMessage):
     data = message.body
-    connection.send_encrypted(
+    if data['T'] - datetime.now().timestamp() > 10:
+        raise SecurityException()
+
+    # 5
+    poll_connection.send_encrypted(
         path='resume_session', data=dict(
             to=data['from'],
             KB='KB',
-            T=data['T'],
+            T=datetime.now().timestamp(),
             M='M',
-        )
+        ), public_key=settings.SERVER_PUB,
     )
-    connection.recieve_decrypted()
+
+    # 12
+    poll_connection.recieve_decrypted()

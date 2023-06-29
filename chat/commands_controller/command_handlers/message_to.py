@@ -10,6 +10,7 @@ from chat.utils import connection
 
 
 def create_session_with_user(luser: LoggedInUser, other_user: str):
+    # 1
     connection.send_encrypted(
         path='start_session', data=dict(
             to=other_user,
@@ -23,6 +24,7 @@ def create_session_with_user(luser: LoggedInUser, other_user: str):
             )
         ), public_key=settings.SERVER_PUB
     )
+    # 8
     message = connection.recieve_decrypted(settings.PRIVATE_KEY)
     data = message.body
     if data['from'] != other_user:
@@ -31,6 +33,9 @@ def create_session_with_user(luser: LoggedInUser, other_user: str):
         raise SecurityException()
     KB = data['KB']
     print('Bye')
+
+    # 9
+    connection.send_encrypted()
 
 
 def message_to_user(other_user: str, message: str):
