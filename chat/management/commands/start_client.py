@@ -25,7 +25,8 @@ class Command(BaseCommand):
     def print(self, user_input):
         try:
             message = handle_input(user_input)
-            self.log(message)
+            if message:
+                self.log(message)
         except Exception as e:
             self.log_error(str(e))
 

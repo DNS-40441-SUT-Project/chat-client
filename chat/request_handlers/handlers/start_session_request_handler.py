@@ -15,21 +15,30 @@ def handle_start_session_request(message: SocketMessage):
     if data['T'] - datetime.now().timestamp() > 10:
         raise SecurityException()
     KA = data['KA']
-    # 5
     M = 'M'
     KB = 'KB'
+    luser = LoggedInUser.get_logged_in_user()
+
+    # 5
     poll_connection.send_sym_encrypted(
-        path='resume_session', data=dict(
+        path='resume_session',
+        headers=dict(
+            authentication=dict(
+                username=luser.username,
+                password=luser.password
+            )
+        ),
+        data=dict(
             to=data['from'],
             KB=KB,
             T=datetime.now().timestamp(),
             M=M,
-        ), symmetric_key=LoggedInUser.get_logged_in_user().encode_symmetric_key,
+        ), symmetric_key=luser.encode_symmetric_key,
     )
 
     # 12
     message: SocketMessage = poll_connection.recieve_sym_decrypted(
-        LoggedInUser.get_logged_in_user().encode_symmetric_key)
+        luser.encode_symmetric_key)
     data_12 = message.body
     if data_12['T'] - datetime.now().timestamp() > 10:
         raise SecurityException()
@@ -45,11 +54,18 @@ def handle_start_session_request(message: SocketMessage):
     hash_m_prim = sha1(m_prim)
     encrypted_hash_m_prim = DH_encrypt(hash_m_prim, KA, KB)
 
-    print(vars(message))
     poll_connection.send_sym_encrypted(
-        path='resume_session', data=dict(
+        path='resume_session',
+        headers=dict(
+            authentication=dict(
+                username=luser.username,
+                password=luser.password
+            )
+        ),
+        data=dict(
             to=data['from'],
             T=datetime.now().timestamp(),
             encrypted_hash_m_prim=encrypted_hash_m_prim,
-        ), symmetric_key=LoggedInUser.get_logged_in_user().encode_symmetric_key,
+        ),
+        symmetric_key=luser.encode_symmetric_key,
     )

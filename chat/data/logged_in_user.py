@@ -4,7 +4,7 @@ from typing import Optional
 from connection_utils.socket_message import SocketMessage
 from django.conf import settings
 
-from chat.utils import poll_connection
+from chat.utils import poll_connection, connection
 
 
 def handle_poll_connections():
@@ -41,11 +41,11 @@ class LoggedInUser:
         ), public_key=settings.SERVER_PUB)
         response = poll_connection.receive()
         if response.body['status'] == '200':
-            poll_connection.send_encrypted(path='symmetric_key', headers=dict(authentication=dict(
+            connection.send_encrypted(path='symmetric_key', headers=dict(authentication=dict(
                 username=username,
                 password=password
             )), public_key=settings.SERVER_PUB)
-            message: SocketMessage = poll_connection.recieve_decrypted(settings.PRIVATE_KEY)
+            message: SocketMessage = connection.recieve_decrypted(settings.PRIVATE_KEY)
             cls._logged_in_user = cls(username, password, message.body['symmetric_key'])
             thread = threading.Thread(target=handle_poll_connections)
             thread.start()
