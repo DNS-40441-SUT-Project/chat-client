@@ -16,7 +16,7 @@ def handle_start_session_request(message: SocketMessage):
         raise SecurityException()
     KA = data['KA']
     M = 'M'
-    KB = 'KB'
+    KB = settings.DH_PUBLIC_KEY
     luser = LoggedInUser.get_logged_in_user()
 
     # 5

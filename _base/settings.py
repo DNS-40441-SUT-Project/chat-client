@@ -14,6 +14,8 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 import rsa
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -125,7 +127,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SERVER_PORT = 7005
 POLL_PORT = 7010
 
-
 with open('_base/client_keys/private.key', mode='rb') as privatefile:
     keydata = privatefile.read()
 PRIVATE_KEY = rsa.PrivateKey.load_pkcs1(keydata)
@@ -133,6 +134,24 @@ PRIVATE_KEY = rsa.PrivateKey.load_pkcs1(keydata)
 with open('_base/client_keys/public.key', 'rb') as publicfile:
     pkeydata = publicfile.read()
 PUBLIC_KEY = rsa.PublicKey.load_pkcs1(pkeydata)
+
+
+with open("_base/client_keys/private.dh.key.pem", "rb") as private_key_file:
+    dh_private_key_data = private_key_file.read()
+
+DH_PRIVATE_KEY = serialization.load_pem_private_key(
+    dh_private_key_data,
+    password=None,
+    backend=default_backend()
+)
+
+with open("_base/client_keys/public.dh.key.pem", "rb") as public_key_file:
+    dh_public_key_data = public_key_file.read()
+
+DH_PUBLIC_KEY = serialization.load_pem_public_key(
+    dh_public_key_data,
+    backend=default_backend()
+)
 
 # pub_string = rsa.PublicKey.save_pkcs1(PUBLIC_KEY, format='PEM').decode()
 # print(pub_string)
