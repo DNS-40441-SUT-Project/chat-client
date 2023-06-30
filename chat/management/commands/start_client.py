@@ -1,8 +1,18 @@
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from chat.commands_controller import handle_input
-from chat.utils import poll_connection
+from chat.utils import poll_connection, connection
+import signal
+
+
+def handle_signal(signum: int, *args):
+    connection.close()
+    poll_connection.close()
+    exit(0)
+
+
+signal.signal(signal.SIGINT, handle_signal)
+signal.signal(signal.SIGTERM, handle_signal)
 
 
 class Command(BaseCommand):
