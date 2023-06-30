@@ -34,7 +34,7 @@ def create_session_with_user(luser: LoggedInUser, other_username: str):
         public_key=settings.SERVER_PUB,
     )
     # 8
-    message = connection.recieve_sym_decrypted(luser.encode_symmetric_key)
+    message = connection.recieve_sym_decrypted(luser.encoded_symmetric_key)
     data = message.body
     if data['from'] != other_username:
         raise SecurityException()
@@ -69,11 +69,11 @@ def create_session_with_user(luser: LoggedInUser, other_username: str):
                 password=luser.password
             )
         ),
-        symmetric_key=luser.encode_symmetric_key,
+        symmetric_key=luser.encoded_symmetric_key,
     )
 
     # 16
-    message_16 = connection.recieve_sym_decrypted(symmetric_key=luser.encode_symmetric_key)
+    message_16 = connection.recieve_sym_decrypted(symmetric_key=luser.encoded_symmetric_key)
     data_16 = message_16.body
     if data_16['from'] != other_username:
         raise SecurityException()
@@ -83,14 +83,48 @@ def create_session_with_user(luser: LoggedInUser, other_username: str):
     hash_m_prim = DH_decrypt(encrypted_hash_m_prim, KB)
     if hash_m_prim != sha1(M_Prim):
         raise SecurityException()
-    return KA, KB
+    return other_user_secret
 
 
 def message_to_user(other_username: str, message: str):
     luser = LoggedInUser.get_logged_in_user()
-    try:
+    if UserSecret.objects.filter(other_user=other_username).exists():
         user_secret = UserSecret.objects.get(other_user=other_username)
-    except UserSecret.DoesNotExist:
-        create_session_with_user(luser, other_username)
+    else:
+        user_secret = create_session_with_user(luser, other_username)
 
-    # TODO: message to user
+    connection.send_encrypted(
+        path='send_message_to_user',
+        data=dict(
+            to=other_username,
+            T=datetime.now().timestamp()
+        ),
+        headers=dict(
+            authentication=dict(
+                username=luser.username,
+                password=luser.password
+            )
+        ),
+        public_key=settings.SERVER_PUB,
+    )
+
+    received_message = connection.recieve_decrypted(settings.PRIVATE_KEY)
+    if received_message.body['status'] != '200':
+        raise Exception('Error in sending message')
+
+    connection.send_sym_encrypted(
+        path='send_message_to_user',
+        data=dict(
+            to=other_username,
+            encrypted_M=DH_encrypt(message=message, received_public_key=user_secret.pub_key),
+            T=datetime.now().timestamp()
+        ),
+        headers=dict(
+            authentication=dict(
+                username=luser.username,
+                password=luser.password
+            )
+        ),
+        symmetric_key=luser.encoded_symmetric_key,
+    )
+    return connection.recieve_sym_decrypted(symmetric_key=luser.encoded_symmetric_key)

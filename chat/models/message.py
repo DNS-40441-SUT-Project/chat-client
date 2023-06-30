@@ -3,7 +3,7 @@ from .base import BaseModel
 
 
 class BaseMessage(BaseModel):
-    sender = models.CharField(max_length=256)
+    sender = models.CharField(max_length=256, db_index=True)
 
     # must be encrypted with secret_key
     content = models.TextField()
@@ -13,8 +13,8 @@ class BaseMessage(BaseModel):
 
 
 class GroupMessage(BaseMessage):
-    group = models.CharField(max_length=256)
+    group = models.CharField(max_length=256, db_index=True)
 
 
 class UserMessage(BaseMessage):
-    receiver = models.CharField(max_length=256)
+    receiver = models.CharField(max_length=256, db_index=True)

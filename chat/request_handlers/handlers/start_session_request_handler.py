@@ -42,12 +42,12 @@ def handle_start_session_request(message: SocketMessage):
             KB=settings.DH_PUBLIC_KEY_BYTES.decode(),
             T=datetime.now().timestamp(),
             M=M,
-        ), symmetric_key=luser.encode_symmetric_key,
+        ), symmetric_key=luser.encoded_symmetric_key,
     )
 
     # 12
     message: SocketMessage = poll_connection.recieve_sym_decrypted(
-        luser.encode_symmetric_key)
+        luser.encoded_symmetric_key)
     data_12 = message.body
     if data_12['T'] - datetime.now().timestamp() > 10:
         raise SecurityException()
@@ -76,5 +76,5 @@ def handle_start_session_request(message: SocketMessage):
             T=datetime.now().timestamp(),
             encrypted_hash_m_prim=encrypted_hash_m_prim,
         ),
-        symmetric_key=luser.encode_symmetric_key,
+        symmetric_key=luser.encoded_symmetric_key,
     )

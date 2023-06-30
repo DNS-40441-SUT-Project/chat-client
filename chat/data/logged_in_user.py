@@ -12,7 +12,10 @@ def handle_poll_connections():
         # 4
         from chat.request_handlers import handle_poll_input
         message = poll_connection.recieve_decrypted(private_key=settings.PRIVATE_KEY)
-        handle_poll_input(message)
+        handler_result = handle_poll_input(message)
+        if handler_result:
+            print(handler_result)
+
 
 
 class LoggedInUser:
@@ -66,8 +69,8 @@ class LoggedInUser:
         cls._logged_in_user = None
 
     @property
-    def encode_symmetric_key(self):
-        return self.symmetric_key.encode('utf-8')
+    def encoded_symmetric_key(self):
+        return self._symmetric_key.encode('utf-8')
 
     def __init__(self, username: str, password: str, symmetric_key: str):
-        self.username, self.password, self.symmetric_key = username, password, symmetric_key
+        self.username, self.password, self._symmetric_key = username, password, symmetric_key
