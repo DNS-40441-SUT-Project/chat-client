@@ -135,7 +135,6 @@ with open('_base/client_keys/public.key', 'rb') as publicfile:
     pkeydata = publicfile.read()
 PUBLIC_KEY = rsa.PublicKey.load_pkcs1(pkeydata)
 
-
 with open("_base/client_keys/private.dh.key.pem", "rb") as private_key_file:
     dh_private_key_data = private_key_file.read()
 
@@ -145,12 +144,23 @@ DH_PRIVATE_KEY = serialization.load_pem_private_key(
     backend=default_backend()
 )
 
+DH_PRIVATE_KEY_BYTES = DH_PRIVATE_KEY.private_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PrivateFormat.PKCS8,
+    encryption_algorithm=serialization.NoEncryption(),
+)
+
 with open("_base/client_keys/public.dh.key.pem", "rb") as public_key_file:
     dh_public_key_data = public_key_file.read()
 
 DH_PUBLIC_KEY = serialization.load_pem_public_key(
     dh_public_key_data,
     backend=default_backend()
+)
+
+DH_PUBLIC_KEY_BYTES = DH_PUBLIC_KEY.public_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PublicFormat.SubjectPublicKeyInfo,
 )
 
 # pub_string = rsa.PublicKey.save_pkcs1(PUBLIC_KEY, format='PEM').decode()

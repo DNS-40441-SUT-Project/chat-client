@@ -6,7 +6,7 @@ import rsa
 
 def generate_DH():
 
-    parameters = dh.generate_parameters(generator=2, key_size=2048, backend=default_backend())
+    parameters = dh.generate_parameters(generator=2, key_size=512, backend=default_backend())
 
     private_key = parameters.generate_private_key()
     public_key = private_key.public_key()
@@ -28,7 +28,7 @@ def generate_DH():
 
 
 def generate_rsa():
-    (pubkey, privkey) = rsa.newkeys(2048, poolsize=4)
+    (pubkey, privkey) = rsa.newkeys(8192, poolsize=4)
 
     PRIV_KEY_DST = 'private.key'
     with open(PRIV_KEY_DST, 'wb+') as f:
