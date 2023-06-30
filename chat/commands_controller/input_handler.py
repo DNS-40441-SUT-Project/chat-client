@@ -10,7 +10,6 @@ def handle_input(message):
     if re.search('^error$', message):
         return error_handler()
     if re.search('^exit$', message):
-        # todo: run logout before it
         return exit_handler()
     if re.search('^all_online_users$', message):
         return get_online_users()
@@ -29,3 +28,5 @@ def handle_input(message):
         username = re.match('^register (\S+) (\S+)$', message).group(1)
         password = re.match('^register (\S+) (\S+)$', message).group(2)
         return handle_register(username, password)
+    if re.search('^logout$', message):
+        return handle_logout()

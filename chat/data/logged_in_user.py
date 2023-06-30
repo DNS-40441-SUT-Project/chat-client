@@ -12,14 +12,16 @@ def handle_poll_connections():
         # 4
         from chat.request_handlers import handle_poll_input
         message = poll_connection.recieve_decrypted(private_key=settings.PRIVATE_KEY)
+        if not LoggedInUser.has_logged_in():
+            break
         handler_result = handle_poll_input(message)
         if handler_result:
             print(handler_result)
 
 
-
 class LoggedInUser:
     _logged_in_user: Optional['LoggedInUser'] = None
+    _current_thread: threading.Thread
 
     class Exceptions:
         class AlreadyLoggedIn(Exception):
@@ -50,11 +52,17 @@ class LoggedInUser:
             )), public_key=settings.SERVER_PUB)
             message: SocketMessage = connection.recieve_decrypted(settings.PRIVATE_KEY)
             cls._logged_in_user = cls(username, password, message.body['symmetric_key'])
-            thread = threading.Thread(target=handle_poll_connections)
-            thread.start()
+            cls._current_thread = threading.Thread(target=handle_poll_connections)
+            cls._current_thread.start()
         else:
             raise cls.Exceptions.ServerError
         return response
+
+    @classmethod
+    def has_logged_in(cls):
+        if cls._logged_in_user is None:
+            return False
+        return True
 
     @classmethod
     def get_logged_in_user(cls) -> 'LoggedInUser':
@@ -67,6 +75,7 @@ class LoggedInUser:
         if cls._logged_in_user is None:
             raise cls.Exceptions.NotLoggedIn
         cls._logged_in_user = None
+        cls._current_thread.join()
 
     @property
     def encoded_symmetric_key(self):

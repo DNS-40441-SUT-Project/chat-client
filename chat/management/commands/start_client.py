@@ -1,14 +1,12 @@
 from django.core.management.base import BaseCommand
 
 from chat.commands_controller import handle_input
-from chat.utils import poll_connection, connection
+from chat.commands_controller.command_handlers import exit_handler
 import signal
 
 
 def handle_signal(signum: int, *args):
-    connection.close()
-    poll_connection.close()
-    exit(0)
+    exit_handler()
 
 
 signal.signal(signal.SIGINT, handle_signal)
