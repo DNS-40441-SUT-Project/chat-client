@@ -12,6 +12,8 @@ def handle_input(message):
     if re.search('^exit$', message):
         # todo: run logout before it
         return exit_handler()
+    if re.search('^all_online_users$', message):
+        return get_online_users()
     if re.search('^connection_health_check$', message):
         return health_check()
     if re.search('^message to (\S+)$', message):
