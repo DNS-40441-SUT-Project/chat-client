@@ -19,7 +19,10 @@ def handle_start_session_request(message: SocketMessage):
     if data['T'] - datetime.now().timestamp() > 10:
         raise SecurityException()
 
-    other_user_secret, _ = UserSecret.objects.get_or_create(other_user=data['from'], secret_key=data['KA'])
+    other_user_secret = UserSecret.unique_get_or_create(
+        username=data['from'],
+        secret=data['KA'],
+    )
 
     KA = serialization.load_pem_public_key(
         other_user_secret.secret_key.encode(),
@@ -41,7 +44,7 @@ def handle_start_session_request(message: SocketMessage):
             to=data['from'],
             KB=settings.DH_PUBLIC_KEY_BYTES.decode(),
             T=datetime.now().timestamp(),
-            M=M,
+            M=DH_encrypt(M, KA),
         ), symmetric_key=luser.encoded_symmetric_key,
     )
 

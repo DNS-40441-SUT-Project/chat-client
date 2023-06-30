@@ -41,7 +41,10 @@ def create_session_with_user(luser: LoggedInUser, other_username: str):
     if data['T'] - datetime.now().timestamp() > 10:
         raise SecurityException()
 
-    other_user_secret, _ = UserSecret.objects.get_or_create(other_user=other_username, secret_key=data['KB'])
+    other_user_secret = UserSecret.unique_get_or_create(
+        username=data['from'],
+        secret=data['KB'],
+    )
 
     KB = serialization.load_pem_public_key(
         other_user_secret.secret_key.encode(),
