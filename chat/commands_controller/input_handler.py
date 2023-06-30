@@ -23,3 +23,7 @@ def handle_input(message):
         username = re.match('^login (\S+) (\S+)$', message).group(1)
         password = re.match('^login (\S+) (\S+)$', message).group(2)
         return LoggedInUser.login(username, password)
+    if re.search('^register (\S+) (\S+)$', message):
+        username = re.match('^register (\S+) (\S+)$', message).group(1)
+        password = re.match('^register (\S+) (\S+)$', message).group(2)
+        return handle_register(username, password)
