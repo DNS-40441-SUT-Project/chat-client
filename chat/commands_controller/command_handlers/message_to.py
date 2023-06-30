@@ -13,7 +13,7 @@ from chat.utils.hash import sha1
 
 def create_session_with_user(luser: LoggedInUser, other_username: str):
     # 1
-    KA = 'KA'
+    KA = settings.DH_PUBLIC_KEY
     connection.send_encrypted(
         path='start_session',
         data=dict(
