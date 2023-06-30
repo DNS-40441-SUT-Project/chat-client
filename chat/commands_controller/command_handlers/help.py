@@ -5,7 +5,7 @@ please write your command to continue:
 # auth
 login: <username> <password>
 register: <username> <password>
-logout: <username> <password>
+logout
 
 # online users
 all_online_users
