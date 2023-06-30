@@ -1,6 +1,8 @@
 import hashlib
 from datetime import datetime
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 from django.conf import settings
 
 from chat.data import LoggedInUser
@@ -9,17 +11,19 @@ from chat.models import UserSecret
 from chat.utils import connection
 from chat.utils.defi_helman import DH_decrypt, DH_encrypt
 from chat.utils.hash import sha1
+import pickle
 
 
 def create_session_with_user(luser: LoggedInUser, other_username: str):
     # 1
+
     KA = settings.DH_PUBLIC_KEY
     connection.send_encrypted(
         path='start_session',
         data=dict(
             to=other_username,
             T=datetime.now().timestamp(),
-            KA=KA,
+            KA=settings.DH_PUBLIC_KEY_BYTES.decode(),
         ),
         headers=dict(
             authentication=dict(
@@ -36,15 +40,21 @@ def create_session_with_user(luser: LoggedInUser, other_username: str):
         raise SecurityException()
     if data['T'] - datetime.now().timestamp() > 10:
         raise SecurityException()
-    KB = data['KB']
+
+    other_user_secret, _ = UserSecret.objects.get_or_create(other_user=other_username, secret_key=data['KB'])
+
+    KB = serialization.load_pem_public_key(
+        other_user_secret.secret_key.encode(),
+        backend=default_backend()
+    )
     encrypted_m = data['M']
 
     # 9
-    M = DH_decrypt(encrypted_m, KA, KB)
+    M = DH_decrypt(encrypted_m, KB)
     hash_m = sha1(M)
-    encrypted_hash_m = DH_encrypt(hash_m, KA, KB)
+    encrypted_hash_m = DH_encrypt(hash_m, KB)
     M_Prim = 'M_PRIM'
-    encrypted_m_prim = DH_encrypt(M_Prim, KA, KB)
+    encrypted_m_prim = DH_encrypt(M_Prim, KB)
     connection.send_sym_encrypted(
         path='resume_session',
         data=dict(
@@ -70,7 +80,7 @@ def create_session_with_user(luser: LoggedInUser, other_username: str):
     if data_16['T'] - datetime.now().timestamp() > 10:
         raise SecurityException()
     encrypted_hash_m_prim = data_16['encrypted_hash_m_prim']
-    hash_m_prim = DH_decrypt(encrypted_hash_m_prim, KA=KA, KB=KB)
+    hash_m_prim = DH_decrypt(encrypted_hash_m_prim, KB)
     if hash_m_prim != sha1(M_Prim):
         raise SecurityException()
     return KA, KB
