@@ -6,3 +6,4 @@ from .message_to import message_to_user
 from .handle_register import handle_register
 from .online_users import get_online_users
 from .handle_logout import handle_logout
+from .handle_create_group import handle_create_group

@@ -30,3 +30,6 @@ def handle_input(message):
         return handle_register(username, password)
     if re.search('^logout$', message):
         return handle_logout()
+    if re.search('^create_group (\S+)$', message):
+        group_name = re.match('^create_group (\S+)$', message).group(1)
+        return handle_create_group(group_name)
