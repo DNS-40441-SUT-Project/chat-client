@@ -1,2 +1,3 @@
 from .start_session_request_handler import handle_start_session_request
 from .handle_message_from_user import handle_message_from_user
+from .handle_store_group_secret import handle_store_group_secret

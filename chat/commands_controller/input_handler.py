@@ -35,3 +35,7 @@ def handle_input(message):
         return handle_create_group(group_name)
     if re.search('^groups$', message):
         return handle_get_groups()
+    if re.search('^add_member_to_group (\S+) (\S+)$', message):
+        group_pk = re.match('^add_member_to_group (\S+) (\S+)$', message).group(1)
+        other = re.match('^add_member_to_group (\S+) (\S+)$', message).group(2)
+        add_user_to_group(other, group_pk)

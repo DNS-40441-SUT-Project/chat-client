@@ -8,3 +8,4 @@ from .online_users import get_online_users
 from .handle_logout import handle_logout
 from .handle_create_group import handle_create_group
 from .handle_get_groups import handle_get_groups
+from .add_user_to_group import add_user_to_group

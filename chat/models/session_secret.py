@@ -35,3 +35,11 @@ class UserSecret(SessionSecret):
 
 class GroupSecret(SessionSecret):
     group = models.CharField(max_length=256, unique=True)
+
+    @classmethod
+    def unique_get_or_create(cls, group: str, secret: str):
+        qs = GroupSecret.objects.filter(group=group)
+        if qs.exists():
+            return qs.first()
+        else:
+            return GroupSecret.objects.create(group=group, secret_key=secret)
