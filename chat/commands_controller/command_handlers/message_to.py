@@ -130,4 +130,5 @@ def message_to_user(other_username: str, message: str):
         ),
         symmetric_key=luser.encoded_symmetric_key,
     )
-    return connection.recieve_sym_decrypted(symmetric_key=luser.encoded_symmetric_key)
+    connection.recieve_sym_decrypted(symmetric_key=luser.encoded_symmetric_key)
+    return 'message sent successfully!!'

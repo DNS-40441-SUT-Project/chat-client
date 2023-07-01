@@ -19,7 +19,7 @@ def handle_input(message):
         other_user = re.match('^message to (\S+)$', message).group(1)
         print('please input message')
         message = input()
-        message_to_user(other_user, message)
+        return message_to_user(other_user, message)
     if re.search('^login (\S+) (\S+)$', message):
         username = re.match('^login (\S+) (\S+)$', message).group(1)
         password = re.match('^login (\S+) (\S+)$', message).group(2)
@@ -33,3 +33,5 @@ def handle_input(message):
     if re.search('^create_group (\S+)$', message):
         group_name = re.match('^create_group (\S+)$', message).group(1)
         return handle_create_group(group_name)
+    if re.search('^groups$', message):
+        return handle_get_groups()
