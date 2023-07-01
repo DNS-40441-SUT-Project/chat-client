@@ -14,7 +14,7 @@ def generate_DH():
     private_key = parameters.generate_private_key()
     public_key = private_key.public_key()
 
-    with open("private.dh.key.pem", "wb") as private_key_file:
+    with open("_base/client_keys/private.dh.key.pem", "wb") as private_key_file:
         private_key_pem = private_key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
@@ -22,7 +22,7 @@ def generate_DH():
         )
         private_key_file.write(private_key_pem)
 
-    with open("public.dh.key.pem", "wb") as public_key_file:
+    with open("_base/client_keys/public.dh.key.pem", "wb") as public_key_file:
         public_key_pem = public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
@@ -33,12 +33,12 @@ def generate_DH():
 def generate_rsa():
     (pubkey, privkey) = rsa.newkeys(8192, poolsize=4)
 
-    PRIV_KEY_DST = 'private.key'
+    PRIV_KEY_DST = '_base/client_keys/private.key'
     with open(PRIV_KEY_DST, 'wb+') as f:
         pk = rsa.PrivateKey.save_pkcs1(privkey, format='PEM')
         f.write(pk)
 
-    PUB_KEY_DST = 'public.key'
+    PUB_KEY_DST = '_base/client_keys/public.key'
     with open(PUB_KEY_DST, 'wb+') as f:
         pk = rsa.PublicKey.save_pkcs1(pubkey, format='PEM')
         f.write(pk)
