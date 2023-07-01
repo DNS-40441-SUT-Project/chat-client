@@ -11,7 +11,7 @@ logout
 all_online_users
 
 # group management
-groups --owned --joined --all # default has been set to --owned
+groups
 create_group <group_name>
 delete_group <group_pk>
 add_member_to_group <group_pk> <member_username>
